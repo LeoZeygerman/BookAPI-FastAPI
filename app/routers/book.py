@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
-from schemas import CreateBook, ResponseBook, UpdateBook
-from models import BookOrm
-from database import SessionDep
+from app.schemas import CreateBook, ResponseBook, UpdateBook
+from app.models import BookOrm
+from app.database import SessionDep
 
 router = APIRouter(
     prefix='/books',
