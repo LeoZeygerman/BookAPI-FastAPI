@@ -41,4 +41,12 @@ async def get_book(book_id: int, session: SessionDep):
 
 @router.delete('/{book_id}', summary='Удаление книги')
 async def delete_book(book_id: int, session: SessionDep):
-    pass
+    query = select(BookOrm).where(BookOrm.id == book_id)
+    result = await session.execute(query)
+    book = result.scalar_one_or_none()
+    if book is None:
+        raise HTTPException(status_code=404, detail='Книга не найдена')
+    await session.delete(book)
+    await session.commit()
+
+@router.patch('/')
