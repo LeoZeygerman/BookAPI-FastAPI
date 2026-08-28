@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class CreateBook(BaseModel):
     title: str
@@ -15,3 +15,4 @@ class ResponseBook(BaseModel):
     title: str
     author: str
     release_date: int
+    model_config = ConfigDict(from_attributes=True)
