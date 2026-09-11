@@ -9,7 +9,7 @@ class AuthorOrm(Base):
     __tablename__ = 'authors'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str]
+    name: Mapped[str] = mapped_column(unique=True)
 
     books: Mapped[list['BookOrm']] = relationship(back_populates='author')
 
