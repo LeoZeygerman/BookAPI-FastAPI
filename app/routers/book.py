@@ -85,8 +85,26 @@ async def delete_book(session: SessionDep, book_id: int):
     book = result.scalar_one_or_none()
 
     if not book:
-        raise HTTPException(status_code=404, detail='Книга не найдена')
+        raise HTTPException(status_code=404, detail='Книга не найдена!')
 
     await session.delete(book)
     await session.commit()
     return f'Книга {book.title} удалена!'
+
+
+@router.delete('/{author_name}', summary='Удалить автора и его книги')
+async def delete_author_with_books(session: SessionDep, author_name: str):
+    query = select(AuthorOrm).where(AuthorOrm.name == author_name)
+    result = await session.execute(query)
+    author = result.scalar_one_or_none()
+
+    if not author:
+        raise HTTPException(status_code=404, detail='Автор не найден!')
+    book_query = select(BookOrm).where(BookOrm.author == author)
+    book_result = await session.execute(book_query)
+    book = book_result.scalars().all()
+
+    await session.delete(book)
+    await session.delete(author)
+    await session.commit()
+    return f'Автор и все его книги удалены!'
