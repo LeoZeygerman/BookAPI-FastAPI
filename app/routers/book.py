@@ -78,4 +78,15 @@ async def edit_book(session: SessionDep, book_id: int, book: UpdateBook):
     return db_book
 
 
-@router.delete()
+@router.delete('/{book_id}', summary='Удалить книгу')
+async def delete_book(session: SessionDep, book_id: int):
+    query = select(BookOrm).where(BookOrm.id == book_id)
+    result = await session.execute(query)
+    book = result.scalar_one_or_none()
+
+    if not book:
+        raise HTTPException(status_code=404, detail='Книга не найдена')
+
+    await session.delete(book)
+    await session.commit()
+    return f'Книга {book.title} удалена!'
