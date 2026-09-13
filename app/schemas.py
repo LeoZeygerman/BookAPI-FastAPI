@@ -22,10 +22,16 @@ class ResponseBook(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ResponseBookShort(BaseModel):
+    id: int
+    title: str
+
 class ResponseAuthorWithBooks(BaseModel):
     id: int
     name: str
-    books: list[ResponseBook]
+    books: list[ResponseBookShort]
+
+    model_config = ConfigDict(from_attributes=True)
 
 class UpdateBook(BaseModel):
     title: str | None = None

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload, joinedload
 from app.database import SessionDep
 from app.schemas import CreateBook, ResponseBook, ResponseAuthorWithBooks, UpdateBook
@@ -62,15 +62,15 @@ async def get_book_by_id(session: SessionDep, book_id: int):
     return book
 
 
-@router.get('/{author_name}', summary='Показать все книги автора', response_model=ResponseAuthorWithBooks)
+@router.get('/by-author/{author_name}/', summary='Показать все книги автора', response_model=list[ResponseAuthorWithBooks])
 async def get_author_with_books(session: SessionDep, author_name: str):
     query = (
         select(AuthorOrm)
         .where(AuthorOrm.name == author_name)
-        .options(joinedload(AuthorOrm.books))
+        .options(selectinload(AuthorOrm.books))
     )
     result = await session.execute(query)
-    author = result.scalar_one_or_none()
+    author = result.scalars().all()
 
     if not author:
         raise HTTPException(status_code=404, detail='Автор не найден!')
@@ -118,23 +118,25 @@ async def delete_book(session: SessionDep, book_id: int):
     return f'Книга {book.title} удалена!'
 
 
-@router.delete('/{author_name}', summary='Удалить автора и его книги')
+@router.delete('/by-author/{author_name}/', summary='Удалить автора и его книги')
 async def delete_author_with_books(session: SessionDep, author_name: str):
     query = (
         select(AuthorOrm)
         .where(AuthorOrm.name == author_name)
-        .options(joinedload(AuthorOrm.books))
+        .options(selectinload(AuthorOrm.books))
     )
     result = await session.execute(query)
     author = result.scalar_one_or_none()
 
     if not author:
         raise HTTPException(status_code=404, detail='Автор не найден!')
-    book_query = select(BookOrm).where(BookOrm.author == author)
+    book_query = select(BookOrm).where(BookOrm.author.has(AuthorOrm.name == author_name))
     book_result = await session.execute(book_query)
-    book = book_result.scalars().all()
+    books = book_result.scalars().all()
 
-    await session.delete(book)
+    await session.execute(
+        delete(BookOrm).where(BookOrm.author_id == author.id)
+    )
     await session.delete(author)
     await session.commit()
     return f'Автор и все его книги удалены!'
