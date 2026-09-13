@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload, joinedload
 from app.database import SessionDep
 from app.schemas import CreateBook, ResponseBook, ResponseAuthorWithBooks, UpdateBook
 from app.models import BookOrm, AuthorOrm
@@ -17,6 +18,7 @@ async def create_book(session: SessionDep, book: CreateBook ):
             name = book.author.name
         )
         session.add(author)
+        await session.flush()
 
     new_book = BookOrm(
         title = book.title,
@@ -25,13 +27,21 @@ async def create_book(session: SessionDep, book: CreateBook ):
     )
     session.add(new_book)
     await session.commit()
-    await session.refresh(new_book)
-    return new_book
 
+    query = (
+        select(BookOrm)
+        .where(BookOrm.id == new_book.id)
+        .options(selectinload(BookOrm.author))
+    )
+    result = await session.execute(query)
+    return result.scalar_one_or_none()
 
 @router.get('/all', summary='Показать все книги', response_model = list[ResponseBook])
 async def get_all(session: SessionDep):
-    query = select(BookOrm)
+    query = (
+        select(BookOrm)
+        .options(selectinload(BookOrm.author))
+    )
     result = await session.execute(query)
     books = result.scalars().all()
     return books
@@ -39,7 +49,11 @@ async def get_all(session: SessionDep):
 
 @router.get('/{book_id}', summary='Найти книгу по id', response_model= ResponseBook)
 async def get_book_by_id(session: SessionDep, book_id: int):
-    query = select(BookOrm).where(BookOrm.id == book_id)
+    query = (
+        select(BookOrm)
+        .where(BookOrm.id == book_id)
+        .options(selectinload(BookOrm.author))
+    )
     result = await session.execute(query)
     book = result.scalar_one_or_none()
 
@@ -50,7 +64,11 @@ async def get_book_by_id(session: SessionDep, book_id: int):
 
 @router.get('/{author_name}', summary='Показать все книги автора', response_model=ResponseAuthorWithBooks)
 async def get_author_with_books(session: SessionDep, author_name: str):
-    query = select(AuthorOrm).where(AuthorOrm.name == author_name)
+    query = (
+        select(AuthorOrm)
+        .where(AuthorOrm.name == author_name)
+        .options(joinedload(AuthorOrm.books))
+    )
     result = await session.execute(query)
     author = result.scalar_one_or_none()
 
@@ -61,7 +79,11 @@ async def get_author_with_books(session: SessionDep, author_name: str):
 
 @router.patch('/{book_id}', summary='Изменить книгу', response_model=ResponseBook)
 async def edit_book(session: SessionDep, book_id: int, book: UpdateBook):
-    query = select(BookOrm).where(BookOrm.id == book_id)
+    query = (
+        select(BookOrm)
+        .where(BookOrm.id == book_id)
+        .options(selectinload(BookOrm.author))
+    )
     result = await session.execute(query)
     db_book = result.scalar_one_or_none()
 
@@ -80,7 +102,11 @@ async def edit_book(session: SessionDep, book_id: int, book: UpdateBook):
 
 @router.delete('/{book_id}', summary='Удалить книгу')
 async def delete_book(session: SessionDep, book_id: int):
-    query = select(BookOrm).where(BookOrm.id == book_id)
+    query = (
+        select(BookOrm)
+        .where(BookOrm.id == book_id)
+        .options(selectinload(BookOrm.author))
+    )
     result = await session.execute(query)
     book = result.scalar_one_or_none()
 
@@ -94,7 +120,11 @@ async def delete_book(session: SessionDep, book_id: int):
 
 @router.delete('/{author_name}', summary='Удалить автора и его книги')
 async def delete_author_with_books(session: SessionDep, author_name: str):
-    query = select(AuthorOrm).where(AuthorOrm.name == author_name)
+    query = (
+        select(AuthorOrm)
+        .where(AuthorOrm.name == author_name)
+        .options(joinedload(AuthorOrm.books))
+    )
     result = await session.execute(query)
     author = result.scalar_one_or_none()
 
