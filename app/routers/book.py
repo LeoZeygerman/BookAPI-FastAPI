@@ -50,4 +50,10 @@ async def get_book_by_id(session: SessionDep, book_id: int):
 
 @router.get('/{author_name}', summary='Показать все книги автора', response_model=ResponseAuthorWithBooks)
 async def get_author_with_books(session: SessionDep, author_name: str):
-    pass
+    query = select(AuthorOrm).where(AuthorOrm.name == author_name)
+    result = await session.execute(query)
+    author = result.scalar_one_or_none()
+
+    if not author:
+        raise HTTPException(status_code=404, detail='Автор не найден!')
+    return author
