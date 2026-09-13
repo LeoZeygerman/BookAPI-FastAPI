@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 from app.database import SessionDep
-from app.schemas import CreateBook, ResponseBook, ResponseAuthorWithBooks
+from app.schemas import CreateBook, ResponseBook, ResponseAuthorWithBooks, UpdateBook
 from app.models import BookOrm, AuthorOrm
 
 router = APIRouter(prefix='/book', tags=['Книги'])
@@ -57,3 +57,25 @@ async def get_author_with_books(session: SessionDep, author_name: str):
     if not author:
         raise HTTPException(status_code=404, detail='Автор не найден!')
     return author
+
+
+@router.patch('/{book_id}', summary='Изменить книгу', response_model=ResponseBook)
+async def edit_book(session: SessionDep, book_id: int, book: UpdateBook):
+    query = select(BookOrm).where(BookOrm.id == book_id)
+    result = await session.execute(query)
+    db_book = result.scalar_one_or_none()
+
+    if not db_book:
+        raise HTTPException(status_code=404, detail='Книга не найдена!')
+    
+    if book.title is not None:
+        db_book.title = book.title
+    if book.note is not None:
+        db_book.note = book.note
+
+    await session.commit()
+    await session.refresh(db_book)
+    return db_book
+
+
+@router.delete()
