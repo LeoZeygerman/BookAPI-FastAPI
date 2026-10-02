@@ -11,7 +11,7 @@ class ReviewsOrm(Base):
     __tablename__ = 'reviews'
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    user_name: Mapped[str] = mapped_column(unique=True)
+    user_name: Mapped[str]
     review: Mapped[str]
 
     book_id: Mapped[int] = mapped_column(ForeignKey('books.id'))

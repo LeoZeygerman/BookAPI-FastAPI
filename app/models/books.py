@@ -1,10 +1,10 @@
-from app.models.authors import AuthorsOrm
 from app.models.base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from app.models.authors import AuthorsOrm
     from app.models.genres import GenresOrm
     from app.models.reviews import ReviewsOrm
 
