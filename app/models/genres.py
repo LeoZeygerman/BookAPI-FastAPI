@@ -1,6 +1,9 @@
 from app.models.base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from app.models.books import BooksOrm
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from app.models.books import BooksOrm
 
 class GenresOrm(Base):
     __tablename__ = 'genres'

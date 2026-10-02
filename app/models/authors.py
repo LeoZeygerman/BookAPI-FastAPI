@@ -1,8 +1,10 @@
 from app.models.base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
+from typing import TYPE_CHECKING
 
-from app.models.books import BooksOrm   
+if TYPE_CHECKING:
+    from app.models.books import BooksOrm   
 
 class AuthorsOrm(Base):
     __tablename__ = 'authors'
