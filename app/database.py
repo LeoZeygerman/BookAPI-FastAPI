@@ -1,8 +1,7 @@
-from typing import Annotated
-
+from app.config import setting
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
-from app.config import setting
+from typing import Annotated
 
 engine = create_async_engine(url=setting.DATABASE_URL_asyncpg)
 
@@ -12,4 +11,4 @@ async def get_session():
     async with new_session() as session:
         yield session
 
-SessionDep = Annotated[AsyncSession, Depends(get_session)]
+SessionDep = Annotated[AsyncSession, Depends[get_session]]
