@@ -19,3 +19,7 @@ class ResponseAuthor(BaseModel):
 class UpdateAuthor(BaseModel):
     author_name: str | None
     authors_book: list[str] | None
+
+
+class ResponseAuthorForBook(BaseModel):
+    author_name: str
