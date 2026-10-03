@@ -25,6 +25,11 @@ class ResponseBook(BaseModel):
     genres: list['ResponseGenreForBook']
     reviews: list['ResponseReview']
     
+    
+class ResponseBookForGenres(BaseModel):
+    id: int
+    book_title: str
+    
 
 class UpdateBook(BaseModel):
     book_title: str | None
