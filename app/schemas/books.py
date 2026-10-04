@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import TYPE_CHECKING
 from app.schemas.genres import ResponseGenreForBook
 from app.schemas.reviews import ResponseReview
@@ -9,10 +9,13 @@ class CreateBook(BaseModel):
     book_title: str
     description: str = Field(min_length=10, max_length=150)
 
+
 class ResponseBookForAuthor(BaseModel):
     book_title: str
     description: str
     genres: list[ResponseGenreForBook]
+
+    model_config = ConfigDict(from_attributes=True)
     
     
 class ResponseBook(BaseModel):
@@ -22,11 +25,15 @@ class ResponseBook(BaseModel):
     author: ResponseAuthorForBook
     genres: list[ResponseGenreForBook]
     reviews: list[ResponseReview]
+
+    model_config = ConfigDict(from_attributes=True)
     
     
 class ResponseBookForGenres(BaseModel):
     id: int
     book_title: str
+
+    model_config = ConfigDict(from_attributes=True)
     
 
 class UpdateBook(BaseModel):
@@ -34,4 +41,3 @@ class UpdateBook(BaseModel):
     description: str | None = Field(min_length=10, max_length=150)
     author: str | None
     genre: list[str] | None
-    reviews: list[str] | None = Field(min_length=10, max_length=250)

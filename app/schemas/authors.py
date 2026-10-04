@@ -20,3 +20,5 @@ class UpdateAuthor(BaseModel):
 
 class ResponseAuthorForBook(BaseModel):
     author_name: str
+
+    model_config = ConfigDict(from_attributes=True)
