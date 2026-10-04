@@ -1,8 +1,6 @@
 from pydantic import BaseModel
 from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from app.schemas.books import ResponseBookForGenres
+from app.schemas.books import ResponseBookForGenres
 
 class CreateGenre(BaseModel):
     genre_title: str
@@ -15,7 +13,7 @@ class ResponseGenreForBook(BaseModel):
 class ResponseGenre(BaseModel):
     id: int
     genre_title: str
-    book_with_genres: list['ResponseBookForGenres']
+    book_with_genres: list[ResponseBookForGenres]
     
     
 class UpdateGenre(BaseModel):
