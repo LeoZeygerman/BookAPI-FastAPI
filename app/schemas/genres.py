@@ -13,7 +13,7 @@ class ResponseGenreForBook(BaseModel):
 class ResponseGenre(BaseModel):
     id: int
     genre_title: str
-    book_with_genres: list[ResponseBookForGenres]
+    books_with_genres: list[ResponseBookForGenres]
     
     
 class UpdateGenre(BaseModel):

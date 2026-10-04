@@ -8,7 +8,7 @@ class CreateAuthor(BaseModel):
 class ResponseAuthor(BaseModel):
     id: int
     author_name: str
-    authors_book: list[ResponseBookForAuthor]
+    authors_books: list[ResponseBookForAuthor]
     
     model_config = ConfigDict(from_attributes=True)
     
