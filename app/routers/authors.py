@@ -35,3 +35,16 @@ async def get_all_authors(session: SessionDep):
         select(AuthorsOrm)
     )
     return authors
+
+
+@router.delete('/{author_name}', summary='Удалить автора')
+async def delete_author(session: SessionDep, author_name: str):
+    author = await session.scalar(
+        select(AuthorsOrm)
+        .where(AuthorsOrm.author_name == author_name)
+    )
+    if author is None:
+        raise HTTPException(status_code=404, detail='Автор не найден')
+    await session.delete(author)
+    await session.commit()
+    return {'msg': f'Автор {author_name} удален!'}
