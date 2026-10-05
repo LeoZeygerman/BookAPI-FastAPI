@@ -16,7 +16,7 @@ async def create_author(session: SessionDep, author: CreateAuthor):
     return new_author
 
 
-@router.get('/{author_name}', summary='Получить автора по имени')
+@router.get('/{author_name}', summary='Получить автора по имени', response_model=ResponseAuthor)
 async def get_author_by_name(session: SessionDep, author_name: str):
     author = await session.scalar(
         select(AuthorsOrm)
@@ -27,3 +27,11 @@ async def get_author_by_name(session: SessionDep, author_name: str):
     if author is None:
         raise HTTPException(status_code=404, detail='Автор не найден')
     return author
+
+
+@router.get('/', summary='Получить всех авторов', response_model=list[ResponseAuthor])
+async def get_all_authors(session: SessionDep):
+    authors = await session.scalars(
+        select(AuthorsOrm)
+    )
+    return authors
