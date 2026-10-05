@@ -40,4 +40,17 @@ async def create_book(session: SessionDep, book: CreateBook):
         geners = new_genres
 
     )
+    session.add(new_book)
+    await session.commit()
     return new_book
+
+
+@router.get('/{book_title}', summary='Получить книгу по названию' ,response_model=ResponseBook)
+async def get_book_by_title(session: SessionDep, book_title: str):
+    book = await session.scalar(
+        select(BooksOrm)
+        .where(
+            BooksOrm.book_title == book_title
+        )
+    )
+    return book
