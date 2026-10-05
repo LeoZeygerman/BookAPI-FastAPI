@@ -8,6 +8,8 @@ from app.schemas.authors import ResponseAuthorForBook
 class CreateBook(BaseModel):
     book_title: str
     description: str = Field(min_length=10, max_length=150)
+    author: str
+    genres: list[str]
 
 
 class ResponseBookForAuthor(BaseModel):
