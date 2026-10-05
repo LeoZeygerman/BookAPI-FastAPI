@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
@@ -53,4 +53,16 @@ async def get_book_by_title(session: SessionDep, book_title: str):
             BooksOrm.book_title == book_title
         )
     )
+    if book is None:
+        raise HTTPException(status_code=404, detail='Книга с названием {book_title} не найдена!')
     return book
+
+
+@router.get('/', summary='Получить все книги', response_model=list[ResponseBook])
+async def get_all_books(session: SessionDep):
+    books = await session.scalars(
+        select(BooksOrm)
+    )
+    if books is None:
+        raise HTTPException(status_code=404, detail='Книги не найдены')
+    return books
