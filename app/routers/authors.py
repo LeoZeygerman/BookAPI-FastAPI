@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from sqlalchemy import select
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
 from app.schemas.authors import CreateAuthor, ResponseAuthor
@@ -13,3 +14,16 @@ async def create_author(session: SessionDep, author: CreateAuthor):
     session.add(new_author)
     await session.commit()
     return new_author
+
+
+@router.get('/{author_name}', summary='Получить автора по имени')
+async def get_author_by_name(session: SessionDep, author_name: str):
+    author = await session.scalar(
+        select(AuthorsOrm)
+        .where(
+            AuthorsOrm.author_name == author_name
+        )
+    )
+    if author is None:
+        raise HTTPException(status_code=404, detail='Автор не найден')
+    return author
