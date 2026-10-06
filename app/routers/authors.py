@@ -46,9 +46,11 @@ async def update_author(session: SessionDep, data: UpdateAuthor, author_name: st
     if author is None:
         raise HTTPException(status_code=404, detail='Автор не найден!')
     changes = data.model_dump(exclude_unset=True)
-    for items in changes:
-        setattr(author, changes, items)
-    
+    for key, value in changes.items():
+        setattr(author, key, value)
+    await session.commit()
+    await session.refresh()
+    return author
     
 
 @router.delete('/{author_name}', summary='Удалить автора')
