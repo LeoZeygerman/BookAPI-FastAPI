@@ -66,3 +66,16 @@ async def get_all_books(session: SessionDep):
     if books is None:
         raise HTTPException(status_code=404, detail='Книги не найдены')
     return books
+
+
+@router.delete('/{book_title}', summary='Удалить книгу')
+async def delete_book(session: SessionDep, book_title: str):
+    book = await session.scalar(
+        select(BooksOrm)
+        .where(BooksOrm.book_title == book_title)
+    )
+    if book is None:
+        raise HTTPException(status_code=404, detail='Книга не найдена!')
+    await session.delete(book)
+    await session.commit()
+    return {'msg': f'Книга {book_title} удалена!'}
