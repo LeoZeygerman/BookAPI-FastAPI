@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
-from app.schemas.authors import CreateAuthor, ResponseAuthor
+from app.schemas.authors import CreateAuthor, ResponseAuthor, UpdateAuthor
 
 router = APIRouter(prefix='/author', tags=['Автор'])
 
@@ -36,6 +36,20 @@ async def get_all_authors(session: SessionDep):
     )
     return authors
 
+
+@router.patch('/{author_name}', summary='Изменить автора', response_model=ResponseAuthor)
+async def update_author(session: SessionDep, data: UpdateAuthor, author_name: str):
+    author = await session.scalar(
+        select(AuthorsOrm)
+        .where(AuthorsOrm.author_name == author_name)
+    )
+    if author is None:
+        raise HTTPException(status_code=404, detail='Автор не найден!')
+    changes = data.model_dump(exclude_unset=True)
+    for items in changes:
+        setattr(author, changes, items)
+    
+    
 
 @router.delete('/{author_name}', summary='Удалить автора')
 async def delete_author(session: SessionDep, author_name: str):
