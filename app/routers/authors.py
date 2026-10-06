@@ -49,7 +49,7 @@ async def update_author(session: SessionDep, data: UpdateAuthor, author_name: st
     for key, value in changes.items():
         setattr(author, key, value)
     await session.commit()
-    await session.refresh()
+    await session.refresh(author)
     return author
     
 
