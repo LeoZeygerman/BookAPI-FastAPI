@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, selectinload
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
 from app.models.genres import GenresOrm
-from app.schemas.books import CreateBook, ResponseBook 
+from app.schemas.books import CreateBook, ResponseBook, UpdateBook 
 
 
 router = APIRouter(prefix='/', tags=['Книги'])
@@ -67,6 +67,32 @@ async def get_all_books(session: SessionDep):
         raise HTTPException(status_code=404, detail='Книги не найдены')
     return books
 
+
+@router.patch('/{book_title}', summary='Изменить книгу', response_model=ResponseBook)
+async def update_book(session: SessionDep, data: UpdateBook, book_title: str):
+    book = await session.scalar(
+        select(BooksOrm)
+        .where(BooksOrm.book_title == book_title)
+        .options(selectinload(BooksOrm.author),
+                 selectinload(BooksOrm.genres))
+    )
+    changes = data.model_dump(exclude_unset=True)
+    simple_fields = {'book_title','description'}
+    for key, value in changes.items():
+        if key in simple_fields:
+            setattr(book,key,value)
+
+    if 'author' in changes:
+        author = await session.scalar(
+            select(AuthorsOrm)
+            .where(AuthorsOrm.author_name == changes['author'])
+        )
+        if author is None:
+            author = AuthorsOrm(
+                author_name = changes['author']
+            )
+            session.add(author)
+        setattr(book,'author', author)
 
 @router.delete('/{book_title}', summary='Удалить книгу')
 async def delete_book(session: SessionDep, book_title: str):
