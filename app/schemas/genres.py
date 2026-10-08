@@ -22,4 +22,3 @@ class ResponseGenre(BaseModel):
     
 class UpdateGenre(BaseModel):
     genre_title: str | None
-    book_with_genres: list[str] | None 
