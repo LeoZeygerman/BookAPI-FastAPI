@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
 from app.schemas.authors import CreateAuthor, ResponseAuthor, UpdateAuthor
@@ -23,6 +24,7 @@ async def get_author_by_name(session: SessionDep, author_name: str):
         .where(
             AuthorsOrm.author_name == author_name
         )
+        .options(selectinload(AuthorsOrm.authors_books))
     )
     if author is None:
         raise HTTPException(status_code=404, detail='Автор не найден')
@@ -33,6 +35,7 @@ async def get_author_by_name(session: SessionDep, author_name: str):
 async def get_all_authors(session: SessionDep):
     authors = await session.scalars(
         select(AuthorsOrm)
+        .options(selectinload(AuthorsOrm.authors_books))
     )
     return authors
 
