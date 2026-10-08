@@ -17,5 +17,7 @@ class ResponseReview(BaseModel):
 
     
 class UpdateReview(BaseModel):
+    id: int
     user_name: str | None
+    reviewed_book: str | None
     review: str | None = Field(min_length=10, max_length=250)

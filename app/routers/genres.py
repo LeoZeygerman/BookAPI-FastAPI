@@ -49,6 +49,7 @@ async def update_genre(session: SessionDep, genre_title: str, data: UpdateGenre)
     genre = await session.scalar(
         select(GenresOrm)
         .where(GenresOrm.genre_title == genre_title)
+        .options(selectinload(GenresOrm.books_with_genres))
     )
     if genre is None:
         raise HTTPException(status_code=404, detail='Жанр не найден!')

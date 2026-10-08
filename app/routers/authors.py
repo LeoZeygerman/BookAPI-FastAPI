@@ -45,6 +45,7 @@ async def update_author(session: SessionDep, data: UpdateAuthor, author_name: st
     author = await session.scalar(
         select(AuthorsOrm)
         .where(AuthorsOrm.author_name == author_name)
+        .options(selectinload(AuthorsOrm.authors_books))
     )
     if author is None:
         raise HTTPException(status_code=404, detail='Автор не найден!')
