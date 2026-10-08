@@ -33,10 +33,10 @@ async def get_genre_by_title(session: SessionDep, genre_title: str):
 
 @router.get('/', summary='Получить все жанры', response_model=list[ResponseGenre])
 async def get_all_genres(session: SessionDep):
-    genres = await session.scalars(
+    genres = await session.execute(
         select(GenresOrm)
     )
-    if len[genres] == 0:
+    if len(genres.all()) == 0:
         raise HTTPException(status_code=404, detail='Нет жанров!')
     return genres
 
@@ -63,6 +63,8 @@ async def delete_genre(session: SessionDep, genre_title: str):
         select(GenresOrm)
         .where(GenresOrm.genre_title == genre_title)
     )
+    if genre is None:
+        raise HTTPException(status_code=404, detail='Жанр не найден!')
     await session.delete(genre)
     await session.commit()
     return {'msg': f'Жанр {genre_title} удален!'}
