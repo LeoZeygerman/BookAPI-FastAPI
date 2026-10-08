@@ -93,6 +93,21 @@ async def update_book(session: SessionDep, data: UpdateBook, book_title: str):
             )
             session.add(author)
         setattr(book,'author', author)
+    
+    if 'genre' in changes:
+        genres = []
+        for genre in changes['genre']:
+            db_genre = await session.scalar(
+                select(GenresOrm)
+                .where(GenresOrm.genre_title == genre)
+            )
+            if db_genre is None:
+                db_genre = GenresOrm(
+                    genre_title = genre
+                )
+                session.add(db_genre)
+            genres.append(db_genre)
+        setattr(book, 'genres', genres)
 
 @router.delete('/{book_title}', summary='Удалить книгу')
 async def delete_book(session: SessionDep, book_title: str):
