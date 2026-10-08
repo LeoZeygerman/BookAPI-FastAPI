@@ -33,12 +33,15 @@ async def get_genre_by_title(session: SessionDep, genre_title: str):
 
 @router.get('/', summary='Получить все жанры', response_model=list[ResponseGenre])
 async def get_all_genres(session: SessionDep):
-    genres = await session.execute(
+    genres = await session.scalars(
         select(GenresOrm)
+        .options(
+            selectinload(GenresOrm.books_with_genres)
+        )
     )
     if len(genres.all()) == 0:
         raise HTTPException(status_code=404, detail='Нет жанров!')
-    return genres
+    return genres.all()
 
 
 @router.patch('/{genre_title}', summary='Изменить жанр', response_model=ResponseGenre)
