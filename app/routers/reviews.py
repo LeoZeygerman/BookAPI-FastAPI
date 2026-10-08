@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from app.database import SessionDep
 from app.models.books import BooksOrm
 from app.models.reviews import ReviewsOrm
@@ -49,13 +50,15 @@ async def get_all_reviews(session: SessionDep):
     return reviews.all()
 
 
-@router.patch('/update-genre/{review_id}', summary='Изменить обзор', response_model=ResponseReview)
-async def update_genre(session: SessionDep, review_id: int, data: UpdateReview):
+@router.patch('/update-review/{review_id}', summary='Изменить обзор', response_model=ResponseReview)
+async def update_review(session: SessionDep, review_id: int, data: UpdateReview):
     review = await session.scalar(
         select(ReviewsOrm)
         .where(ReviewsOrm.id == review_id)
-        .options(ReviewsOrm.reviewed_book)
+        .options(selectinload(ReviewsOrm.reviewed_book))
     )
+    if review is None:
+        raise HTTPException(status_code=404, detail='Обзор не найден!')
     changes = data.model_dump(exclude_unset=True)
     simple_field = {'user_name','review'}
     for key,value in changes.items():
