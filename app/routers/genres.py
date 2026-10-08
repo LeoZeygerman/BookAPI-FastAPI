@@ -3,7 +3,7 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy import select
 from app.database import SessionDep
 from app.models.genres import GenresOrm
-from app.schemas.genres import CreateGenre, ResponseGenre
+from app.schemas.genres import CreateGenre, ResponseGenre, UpdateGenre
 
 router = APIRouter(prefix='/genres', tags=['Жанры'])
 
@@ -39,3 +39,30 @@ async def get_all_genres(session: SessionDep):
     if len[genres] == 0:
         raise HTTPException(status_code=404, detail='Нет жанров!')
     return genres
+
+
+@router.patch('/{genre_title}', summary='Изменить жанр', response_model=ResponseGenre)
+async def update_genre(session: SessionDep, genre_title: str, data: UpdateGenre):
+    genre = await session.scalar(
+        select(GenresOrm)
+        .where(GenresOrm.genre_title == genre_title)
+    )
+    if genre is None:
+        raise HTTPException(status_code=404, detail='Жанр не найден!')
+    changes = data.model_dump(exclude_unset=True)
+    for key, value in changes.items():
+        setattr(genre, key, value)
+    await session.commit()
+    await session.refresh(genre)
+    return genre
+
+
+@router.delete('/{genre_title}', summary='Удалить жанр')
+async def delete_genre(session: SessionDep, genre_title: str):
+    genre = await session.scalar(
+        select(GenresOrm)
+        .where(GenresOrm.genre_title == genre_title)
+    )
+    await session.delete(genre)
+    await session.commit()
+    return {'msg': f'Жанр {genre_title} удален!'}
