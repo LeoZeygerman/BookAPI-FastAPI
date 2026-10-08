@@ -29,3 +29,13 @@ async def get_genre_by_title(session: SessionDep, genre_title: str):
     if genre is None:
         raise HTTPException(status_code=404, detail='Жанр не найден!')
     return genre
+
+
+@router.get('/', summary='Получить все жанры', response_model=list[ResponseGenre])
+async def get_all_genres(session: SessionDep):
+    genres = await session.scalars(
+        select(GenresOrm)
+    )
+    if len[genres] == 0:
+        raise HTTPException(status_code=404, detail='Нет жанров!')
+    return genres
