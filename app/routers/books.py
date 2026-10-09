@@ -8,7 +8,7 @@ from app.models.genres import GenresOrm
 from app.schemas.books import CreateBook, ResponseBook, UpdateBook 
 
 
-router = APIRouter(prefix='/', tags=['Книги'])
+router = APIRouter(prefix='/books', tags=['Книги'])
 
 
 @router.post('/', summary='Добавить книгу', response_model=ResponseBook)

@@ -7,7 +7,7 @@ from app.schemas.genres import CreateGenre, ResponseGenre, UpdateGenre
 
 router = APIRouter(prefix='/genres', tags=['Жанры'])
 
-@router.post('/', summary='Создать жанр', response_model=ResponseGenre)
+@router.post('/genres', summary='Создать жанр', response_model=ResponseGenre)
 async def create_genre(session: SessionDep, genre: CreateGenre):
     new_genre = GenresOrm(
         genre_title = genre.genre_title

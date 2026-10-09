@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.schemas.books import ResponseBookForAuthor
+    from app.schemas import ResponseBookForAuthor
 
 
 class CreateAuthor(BaseModel):
