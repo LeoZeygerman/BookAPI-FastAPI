@@ -1,8 +1,14 @@
 from pydantic import BaseModel, ConfigDict
 from typing import TYPE_CHECKING
+from app.schemas.books import ResponseGenreForBook
 
-if TYPE_CHECKING:
-    from app.schemas import ResponseBookForAuthor
+
+class ResponseBookForAuthor(BaseModel):
+    book_title: str
+    description: str
+    genres: list[ResponseGenreForBook]
+
+    model_config = ConfigDict(from_attributes=True)
 
 
 class CreateAuthor(BaseModel):
@@ -12,7 +18,7 @@ class CreateAuthor(BaseModel):
 class ResponseAuthor(BaseModel):
     id: int
     author_name: str
-    authors_books: list['ResponseBookForAuthor']
+    authors_books: list[ResponseBookForAuthor]
     
     model_config = ConfigDict(from_attributes=True)
     

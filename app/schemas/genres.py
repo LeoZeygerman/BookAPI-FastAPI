@@ -1,15 +1,15 @@
 from pydantic import BaseModel, ConfigDict
-from typing import TYPE_CHECKING
-from app.schemas.books import ResponseBookForGenres
+
+   
+class ResponseBookForGenres(BaseModel):
+    id: int
+    book_title: str
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 class CreateGenre(BaseModel):
     genre_title: str
-
-
-class ResponseGenreForBook(BaseModel):
-    genre_title: str
-
-    model_config = ConfigDict(from_attributes=True)
     
     
 class ResponseGenre(BaseModel):

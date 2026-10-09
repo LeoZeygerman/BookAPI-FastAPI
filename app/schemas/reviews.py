@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 from typing import TYPE_CHECKING
+from app.schemas.genres import ResponseBookForGenres
 
 
 class CreateReview(BaseModel):
@@ -10,7 +11,7 @@ class CreateReview(BaseModel):
 
 class ResponseReview(BaseModel):
     user_name: str
-    reviewed_book: str
+    reviewed_book: ResponseBookForGenres
     review: str
 
     model_config = ConfigDict(from_attributes=True)
