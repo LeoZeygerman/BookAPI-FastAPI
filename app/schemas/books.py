@@ -31,6 +31,16 @@ class ResponseBook(BaseModel):
     reviews: list[ResponseReview]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ResponseBookAfterCreate(BaseModel):
+    id: int
+    book_title: str
+    description: str
+    author: ResponseAuthorForBook
+    genres: list[ResponseGenreForBook]
+
+    model_config = ConfigDict(from_attributes=True)
     
 
 class UpdateBook(BaseModel):

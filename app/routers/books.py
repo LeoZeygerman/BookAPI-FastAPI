@@ -5,13 +5,13 @@ from app.database import SessionDep
 from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
 from app.models.genres import GenresOrm
-from app.schemas.books import CreateBook, ResponseBook, UpdateBook 
+from app.schemas.books import CreateBook, ResponseBook, UpdateBook, ResponseBookAfterCreate
 
 
 router = APIRouter(prefix='/books', tags=['Книги'])
 
 
-@router.post('/', summary='Добавить книгу', response_model=ResponseBook)
+@router.post('/', summary='Добавить книгу', response_model=ResponseBookAfterCreate)
 async def create_book(session: SessionDep, book: CreateBook):
     new_author = await session.scalar(
         select(AuthorsOrm)
@@ -38,7 +38,7 @@ async def create_book(session: SessionDep, book: CreateBook):
         book_title = book.book_title,
         description = book.description,
         author = new_author,
-        geners = new_genres
+        genres = new_genres
 
     )
     session.add(new_book)
