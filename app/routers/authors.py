@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
+from app.models.books import BooksOrm
 from app.schemas.authors import CreateAuthor, ResponseAuthor, UpdateAuthor
 
 router = APIRouter(prefix='/author', tags=['Автор'])
@@ -68,3 +69,19 @@ async def delete_author(session: SessionDep, author_name: str):
     await session.delete(author)
     await session.commit()
     return {'msg': f'Автор {author_name} удален!'}
+
+
+@router.get('/', summary='Топ 5 авторов по количеству книг.', response_model=list[ResponseAuthor])
+async def get_top_five_authors(session: SessionDep):
+    authors = await session.execute(
+        select(
+            AuthorsOrm.id,
+            func.count(BooksOrm.id)
+        )
+        .group_by(BooksOrm.author_id)
+        .join(AuthorsOrm, BooksOrm.author_id == AuthorsOrm.id)
+        .order_by(func.count(BooksOrm).desc())
+        .limit(5)
+    )
+    if len(authors.all()) == 0:
+        raise HTTPException(status_code=404, detail='Авторов нет')

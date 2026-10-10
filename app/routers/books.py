@@ -6,6 +6,7 @@ from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
 from app.models.genres import GenresOrm
 from app.schemas.books import CreateBook, ResponseBook, UpdateBook, ResponseBookAfterCreate
+from app.schemas.genres import ResponseGenre
 
 
 router = APIRouter(prefix='/books', tags=['Книги'])
@@ -121,3 +122,14 @@ async def delete_book(session: SessionDep, book_title: str):
     await session.delete(book)
     await session.commit()
     return {'msg': f'Книга {book_title} удалена!'}
+
+
+@router.get('/{genre_title}', summary='Поиск книг по жанру', response_model=ResponseGenre)
+async def get_book_by_genre(session: SessionDep, genre_title: str):
+    genre_with_books = await session.scalar(
+        select(GenresOrm)
+        .where(GenresOrm.genre_title == genre_title )
+    )
+    if genre_with_books is None:
+        raise HTTPException(status_code=404, detail='Жанр не найден')
+    return genre_with_books
