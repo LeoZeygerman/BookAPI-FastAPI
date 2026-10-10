@@ -80,7 +80,8 @@ async def get_top_five_authors(session: SessionDep):
         )
         .group_by(BooksOrm.author_id)
         .join(AuthorsOrm, BooksOrm.author_id == AuthorsOrm.id)
-        .order_by(func.count(BooksOrm).desc())
+        .having(func.count(BooksOrm.id) > 0)
+        .order_by(func.count(BooksOrm.id).desc())
         .limit(5)
     )
     if len(authors.all()) == 0:
