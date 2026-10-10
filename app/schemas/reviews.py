@@ -1,5 +1,4 @@
 from pydantic import BaseModel, ConfigDict, Field
-from typing import TYPE_CHECKING
 from app.schemas.genres import ResponseBookForGenres
 
 
