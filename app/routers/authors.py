@@ -86,3 +86,4 @@ async def get_top_five_authors(session: SessionDep):
     )
     if len(authors.all()) == 0:
         raise HTTPException(status_code=404, detail='Авторов нет')
+    return authors.all()

@@ -1,10 +1,11 @@
 from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
 from app.models.genres import GenresOrm
+from app.models.reviews import ReviewsOrm
 from app.schemas.books import CreateBook, ResponseBook, UpdateBook, ResponseBookAfterCreate
 from app.schemas.genres import ResponseGenre
 
@@ -133,3 +134,22 @@ async def get_book_by_genre(session: SessionDep, genre_title: str):
     if genre_with_books is None:
         raise HTTPException(status_code=404, detail='Жанр не найден')
     return genre_with_books
+
+
+@router.get('/', summary='Самые обсуждаемые книги', response_model=list[ResponseBook])
+async def get_most_reviewed_books(session: SessionDep):
+    books = await session.execute(
+        select(
+            BooksOrm.id,
+            func.count(
+                ReviewsOrm.id
+            )
+        )
+        .join(BooksOrm, BooksOrm.id == ReviewsOrm.book_id)
+        .group_by(ReviewsOrm.book_id)
+        .order_by(func.count(ReviewsOrm.id).desc)
+        .limit(10)
+    )
+    if len(books.all()) == 0:
+        raise HTTPException(status_code=404, detail='Книг нет!')
+    return books.all()
