@@ -4,6 +4,7 @@ from sqlalchemy.orm import selectinload
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
+from app.models.books_genres import BookGenreOrm
 from app.models.genres import GenresOrm
 from app.models.reviews import ReviewsOrm
 from app.schemas.books import CreateBook, ResponseBook, ResponseBookForReviewCount, UpdateBook, ResponseBookAfterCreate
@@ -149,4 +150,25 @@ async def get_most_reviewed_books(session: SessionDep):
         .limit(10)
     )
     books = result.mappings().all()
+    return books
+
+
+@router.get('/by-genre', summary='Книги двух жанров', response_model=list[ResponseBook])
+async def get_book_by_two_genres(session: SessionDep, genre_1: str, genre_2: str):
+    result = await session.execute(
+        select(BooksOrm)
+        .join(BookGenreOrm, BooksOrm.id == BookGenreOrm.book_id)
+        .join(GenresOrm, BookGenreOrm.genre_id == GenresOrm.id)
+        .where(GenresOrm.genre_title.in_([genre_1, genre_2]))
+        .having(func.count(GenresOrm.id) == 2)
+        .group_by(BooksOrm.id)
+        .options(
+            selectinload(BooksOrm.genres),
+            selectinload(BooksOrm.reviews),
+            selectinload(BooksOrm.author)
+        )
+    )
+    books = result.scalars().all()
+    if len(books) == 0:
+        raise HTTPException(status_code=404, detail='Книги с такими жанрами не найдены!')
     return books
