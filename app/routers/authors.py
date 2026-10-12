@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
-from app.schemas.authors import CreateAuthor, ResponseAuthor, UpdateAuthor
+from app.schemas.authors import CreateAuthor, ResponseAuthor, ResponseAuthorForTop, UpdateAuthor
 
 router = APIRouter(prefix='/author', tags=['Автор'])
 
@@ -71,7 +71,7 @@ async def delete_author(session: SessionDep, author_name: str):
     return {'msg': f'Автор {author_name} удален!'}
 
 
-@router.get('/', summary='Топ 5 авторов по количеству книг.', response_model=list[ResponseAuthor])
+@router.get('/', summary='Топ 5 авторов по количеству книг.', response_model=list[ResponseAuthorForTop])
 async def get_top_five_authors(session: SessionDep):
     authors = await session.execute(
         select(
@@ -80,7 +80,6 @@ async def get_top_five_authors(session: SessionDep):
         )
         .group_by(BooksOrm.author_id)
         .join(AuthorsOrm, BooksOrm.author_id == AuthorsOrm.id)
-        .having(func.count(BooksOrm.id) > 0)
         .order_by(func.count(BooksOrm.id).desc())
         .limit(5)
     )
