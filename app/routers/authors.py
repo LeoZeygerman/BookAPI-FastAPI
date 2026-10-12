@@ -76,6 +76,7 @@ async def get_top_five_authors(session: SessionDep):
     authors = await session.execute(
         select(
             AuthorsOrm.id,
+            BooksOrm,
             func.count(BooksOrm.id)
         )
         .group_by(BooksOrm.author_id)
