@@ -84,7 +84,7 @@ async def get_top_five_authors(session: SessionDep):
         .order_by(func.count(BooksOrm.id).desc())
         .limit(5)
     )
-    authors = result.all()
+    authors = result.mappings().all()
     if len(authors) == 0:
         raise HTTPException(status_code=404, detail='Авторов нет')
     return authors
