@@ -33,6 +33,13 @@ class ResponseBook(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ResponseBookForReviewCount(BaseModel):
+    book_title: str
+    review_count: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ResponseBookAfterCreate(BaseModel):
     id: int
     book_title: str

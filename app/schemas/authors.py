@@ -8,6 +8,8 @@ class ResponseAuthorForTop(BaseModel):
     book_title: list[str]
     book_count: int
 
+    model_config = ConfigDict(from_attributes=True)
+
 
 class ResponseBookForAuthor(BaseModel):
     book_title: str

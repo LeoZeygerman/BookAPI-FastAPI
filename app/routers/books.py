@@ -138,18 +138,14 @@ async def get_book_by_genre(session: SessionDep, genre_title: str):
 
 @router.get('/', summary='Самые обсуждаемые книги', response_model=list[ResponseBook])
 async def get_most_reviewed_books(session: SessionDep):
-    books = await session.execute(
+    result = await session.execute(
         select(
-            BooksOrm.id,
-            func.count(
-                ReviewsOrm.id
-            )
+            BooksOrm.book_title,
+            func.count(ReviewsOrm.id).label('review_count')
         )
-        .join(BooksOrm, BooksOrm.id == ReviewsOrm.book_id)
-        .group_by(ReviewsOrm.book_id)
-        .order_by(func.count(ReviewsOrm.id).desc)
-        .limit(10)
+        .group_by(BooksOrm.id)
+        .join(ReviewsOrm, ReviewsOrm.book_id == BooksOrm.id)
+        .order_by(func.count(ReviewsOrm.id).desc())
     )
-    if len(books.all()) == 0:
-        raise HTTPException(status_code=404, detail='Книг нет!')
-    return books.all()
+    books = result.mappings().all()
+    return books
