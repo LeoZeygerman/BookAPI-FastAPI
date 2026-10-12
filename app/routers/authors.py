@@ -79,7 +79,7 @@ async def get_top_five_authors(session: SessionDep):
             func.array_agg(BooksOrm.book_title).label('book_title'),
             func.count(BooksOrm.id).label('book_count')
         )
-        .group_by(BooksOrm.author_id)
+        .group_by(AuthorsOrm.id)
         .join(AuthorsOrm, BooksOrm.author_id == AuthorsOrm.id)
         .order_by(func.count(BooksOrm.id).desc())
         .limit(5)

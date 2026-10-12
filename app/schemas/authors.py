@@ -5,6 +5,7 @@ from app.schemas.books import ResponseGenreForBook
 
 class ResponseAuthorForTop(BaseModel):
     author_name: str
+    book_title: list[str]
     book_count: int
 
 
