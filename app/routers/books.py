@@ -6,7 +6,7 @@ from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
 from app.models.genres import GenresOrm
 from app.models.reviews import ReviewsOrm
-from app.schemas.books import CreateBook, ResponseBook, UpdateBook, ResponseBookAfterCreate
+from app.schemas.books import CreateBook, ResponseBook, ResponseBookForReviewCount, UpdateBook, ResponseBookAfterCreate
 from app.schemas.genres import ResponseGenre
 
 
@@ -136,7 +136,7 @@ async def get_book_by_genre(session: SessionDep, genre_title: str):
     return genre_with_books
 
 
-@router.get('/', summary='Самые обсуждаемые книги', response_model=list[ResponseBook])
+@router.get('/', summary='Самые обсуждаемые книги', response_model=list[ResponseBookForReviewCount])
 async def get_most_reviewed_books(session: SessionDep):
     result = await session.execute(
         select(
