@@ -73,17 +73,18 @@ async def delete_author(session: SessionDep, author_name: str):
 
 @router.get('/', summary='Топ 5 авторов по количеству книг.', response_model=list[ResponseAuthorForTop])
 async def get_top_five_authors(session: SessionDep):
-    authors = await session.execute(
+    result = await session.execute(
         select(
-            AuthorsOrm.id,
-            BooksOrm,
-            func.count(BooksOrm.id)
+            AuthorsOrm.author_name,
+            func.array_agg(BooksOrm.book_title).label('book_title'),
+            func.count(BooksOrm.id).label('book_count')
         )
         .group_by(BooksOrm.author_id)
         .join(AuthorsOrm, BooksOrm.author_id == AuthorsOrm.id)
         .order_by(func.count(BooksOrm.id).desc())
         .limit(5)
     )
-    if len(authors.all()) == 0:
+    authors = result.all()
+    if len(authors) == 0:
         raise HTTPException(status_code=404, detail='Авторов нет')
-    return authors.all()
+    return authors
