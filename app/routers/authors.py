@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
-from app.schemas.authors import CreateAuthor, ResponseAuthor, ResponseAuthorForTop, UpdateAuthor
+from app.schemas.authors import CreateAuthor, ResponseAuthor, ResponseAuthorForNCount, ResponseAuthorForTop, UpdateAuthor
 
 router = APIRouter(prefix='/author', tags=['Автор'])
 
@@ -90,7 +90,7 @@ async def get_top_five_authors(session: SessionDep):
     return authors
 
 
-@router.get('/book-count/{book_count}', summary='Получить автора с N количеством книг', response_model=ResponseAuthorForTop)
+@router.get('/book-count/{book_count}', summary='Получить автора с N количеством книг', response_model=ResponseAuthorForNCount)
 async def get_author_with_n_books(session: SessionDep, book_count: int):
     result = await session.execute(
         select(
@@ -101,7 +101,7 @@ async def get_author_with_n_books(session: SessionDep, book_count: int):
         .join(BooksOrm, BooksOrm.author_id == AuthorsOrm.id)
         .having(func.count(BooksOrm.id) == book_count)
     )
-    author = result.mappings().one_or_none()
+    author = result.mappings().all()
     if len(author) is None:
         raise HTTPException(status_code=404, detail='Автор с таким кол-вом книг не найден!')
     return author
