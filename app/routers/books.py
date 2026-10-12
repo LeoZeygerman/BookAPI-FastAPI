@@ -125,7 +125,7 @@ async def delete_book(session: SessionDep, book_title: str):
     return {'msg': f'Книга {book_title} удалена!'}
 
 
-@router.get('/{genre_title}', summary='Поиск книг по жанру', response_model=ResponseGenre)
+@router.get('/genre/{genre_title}', summary='Поиск книг по жанру', response_model=ResponseGenre)
 async def get_book_by_genre(session: SessionDep, genre_title: str):
     genre_with_books = await session.scalar(
         select(GenresOrm)
@@ -146,6 +146,7 @@ async def get_most_reviewed_books(session: SessionDep):
         .group_by(BooksOrm.id)
         .join(ReviewsOrm, ReviewsOrm.book_id == BooksOrm.id)
         .order_by(func.count(ReviewsOrm.id).desc())
+        .limit(10)
     )
     books = result.mappings().all()
     return books

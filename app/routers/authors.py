@@ -88,3 +88,20 @@ async def get_top_five_authors(session: SessionDep):
     if len(authors) == 0:
         raise HTTPException(status_code=404, detail='Авторов нет')
     return authors
+
+
+@router.get('/book-count/{book_count}', summary='Получить автора с N количеством книг', response_model=ResponseAuthorForTop)
+async def get_author_with_n_books(session: SessionDep, book_count: int):
+    result = await session.execute(
+        select(
+            AuthorsOrm.author_name,
+            func.array_agg(BooksOrm.book_title).label('book_title')
+        )
+        .group_by(AuthorsOrm.id)
+        .join(BooksOrm, BooksOrm.author_id == AuthorsOrm.id)
+        .having(func.count(BooksOrm.id) == book_count)
+    )
+    author = result.mappings().one_or_none()
+    if len(author) is None:
+        raise HTTPException(status_code=404, detail='Автор с таким кол-вом книг не найден!')
+    return author
