@@ -105,3 +105,34 @@ async def get_author_with_n_books(session: SessionDep, book_count: int):
     if len(author) == 0:
         raise HTTPException(status_code=404, detail='Автор с таким кол-вом книг не найден!')
     return author
+
+
+@router.get('/', summary='Авторы с количеством книг больше среднего', response_model=list[ResponseAuthor])
+async def get_authors_more_than_avg(session: SessionDep):
+    subq1 = select(
+        AuthorsOrm.id,
+        func.count(BooksOrm.id).label('book_count')
+        ).join(
+            BooksOrm, BooksOrm.author_id == AuthorsOrm.id
+        ).group_by(
+            AuthorsOrm.id
+        ).subquery()
+
+    subq2 = select(
+        func.avg(subq1.c.book_count).label('avg_books')
+    ).scalar_subquery()
+
+    query = await session.execute(
+        select(AuthorsOrm)
+        .options(
+            selectinload(AuthorsOrm.authors_books)
+        )
+        .join(BooksOrm, BooksOrm.author_id == AuthorsOrm.id)
+        .group_by(AuthorsOrm.id)
+        .having(subq2 < func.count(BooksOrm.id))
+    )
+    authors = query.scalars().all()
+    if len(authors) == 0:
+        raise HTTPException(status_code=404, detail='Авторов нет')
+    return authors
+    
