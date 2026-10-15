@@ -7,14 +7,14 @@ from app.models.books import BooksOrm
 from app.models.books_genres import BookGenreOrm
 from app.models.genres import GenresOrm
 from app.models.reviews import ReviewsOrm
-from app.schemas.books import CreateBook, ResponseBook, ResponseBookForReviewCount, UpdateBook, ResponseBookAfterCreate
+from app.schemas.books import CreateBook, ResponseBook, ResponseBookForReviewCount, UpdateBook
 from app.schemas.genres import ResponseGenre
 
 
 router = APIRouter(prefix='/books', tags=['Книги'])
 
 
-@router.post('/', summary='Добавить книгу', response_model=ResponseBookAfterCreate)
+@router.post('/', summary='Добавить книгу', response_model=ResponseBook)
 async def create_book(session: SessionDep, book: CreateBook):
     new_author = await session.scalar(
         select(AuthorsOrm)

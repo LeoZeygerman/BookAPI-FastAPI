@@ -15,7 +15,7 @@ class CreateGenre(BaseModel):
 class ResponseGenre(BaseModel):
     id: int
     genre_title: str
-    books_with_genres: list[ResponseBookForGenres]
+    books_with_genres: list[ResponseBookForGenres] | None = None
 
     model_config = ConfigDict(from_attributes=True)
     

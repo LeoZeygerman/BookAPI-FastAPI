@@ -3,11 +3,6 @@ from typing import TYPE_CHECKING
 from app.schemas.books import ResponseGenreForBook
 
 
-class ResponseAuthorForNCount(BaseModel):
-    author_name: str
-    book_title: list[str]
-
-
 class ResponseAuthorForTops(BaseModel):
     author_name: str | None = None
     book_title: list[str] | None = None
@@ -39,9 +34,3 @@ class ResponseAuthor(BaseModel):
 class UpdateAuthor(BaseModel):
     author_name: str | None
     authors_book: list[str] | None
-
-
-class ResponseAuthorForBook(BaseModel):
-    author_name: str
-
-    model_config = ConfigDict(from_attributes=True)
