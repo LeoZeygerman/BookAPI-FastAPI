@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload
 from app.database import SessionDep
 from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
-from app.schemas.authors import CreateAuthor, ResponseAuthor, ResponseAuthorForNCount, ResponseAuthorForTop, UpdateAuthor
+from app.schemas.authors import CreateAuthor, ResponseAuthor, ResponseAuthorForTops, UpdateAuthor
 
 router = APIRouter(prefix='/author', tags=['Автор'])
 
@@ -71,7 +71,7 @@ async def delete_author(session: SessionDep, author_name: str):
     return {'msg': f'Автор {author_name} удален!'}
 
 
-@router.get('/', summary='Топ 5 авторов по количеству книг.', response_model=list[ResponseAuthorForTop])
+@router.get('/', summary='Топ 5 авторов по количеству книг.', response_model=list[ResponseAuthorForTops])
 async def get_top_five_authors(session: SessionDep):
     result = await session.execute(
         select(
@@ -90,7 +90,7 @@ async def get_top_five_authors(session: SessionDep):
     return authors
 
 
-@router.get('/book-count/{book_count}', summary='Получить автора с N количеством книг', response_model=list[ResponseAuthorForNCount])
+@router.get('/book-count/{book_count}', summary='Получить автора с N количеством книг', response_model=list[ResponseAuthorForTops])
 async def get_author_with_n_books(session: SessionDep, book_count: int):
     result = await session.execute(
         select(

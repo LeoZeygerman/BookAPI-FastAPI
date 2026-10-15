@@ -8,10 +8,10 @@ class ResponseAuthorForNCount(BaseModel):
     book_title: list[str]
 
 
-class ResponseAuthorForTop(BaseModel):
-    author_name: str
-    book_title: list[str]
-    book_count: int
+class ResponseAuthorForTops(BaseModel):
+    author_name: str | None = None
+    book_title: list[str] | None = None
+    book_count: int | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
