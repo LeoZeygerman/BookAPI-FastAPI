@@ -1,7 +1,8 @@
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.exception import NotFoundError
 from app.models.authors import AuthorsOrm
+from app.models.books import BooksOrm
 from app.schemas.authors import CreateAuthor, UpdateAuthor
 from sqlalchemy.orm import selectinload
 
@@ -66,3 +67,22 @@ async def delete_author(session: AsyncSession, author_name: str):
     await session.delete(author)
     await session.commit()
     return {'msg': f'Автор {author_name} удален!'}
+
+
+async def get_top_five_authors(session: AsyncSession):
+    result = await session.execute(
+        select(
+            AuthorsOrm.author_name,
+            func.array_agg(BooksOrm.book_title).label('book_title'),
+            func.count(BooksOrm.id).label('book_count')
+        )
+        .group_by(AuthorsOrm.id)
+        .join(BooksOrm, BooksOrm.author_id == AuthorsOrm.id)
+        .order_by(func.count(BooksOrm.id).desc())
+        .limit(5)
+    )
+
+    authors = result.mappings().all()
+    if len(authors) == 0:
+        raise NotFoundError(f'Авторов нет!')
+    return authors
