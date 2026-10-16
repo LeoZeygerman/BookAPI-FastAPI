@@ -40,3 +40,19 @@ async def get_book_by_title(session: AsyncSession, book_title: str):
     if book is None:
         raise NotFoundError(f'Книга не найдена!')
     return book
+
+
+async def get_all_books(session: AsyncSession):
+    result = await session.scalars(
+        select(BooksOrm)
+        .options(
+            selectinload(BooksOrm.author),
+            selectinload(BooksOrm.reviews),
+            selectinload(BooksOrm.genres)
+        )
+    )
+
+    books = result.all()
+    if len(books) is None:
+        raise NotFoundError(f'Книг нет!')
+    return books 
