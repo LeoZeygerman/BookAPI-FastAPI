@@ -107,3 +107,32 @@ async def get_author_with_n_books(session: AsyncSession, book_count: int):
         raise NotFoundError(f'Авторы с таким количеством книг не найдены!')
 
     return authors
+
+
+async def get_authors_more_than_avg(session: AsyncSession):
+    count_all_books = select(
+        AuthorsOrm.id,
+        func.count(BooksOrm.id).label('book_count')
+    ).join(
+        BooksOrm, BooksOrm.author_id == AuthorsOrm.id
+        ).group_by(
+            AuthorsOrm.id
+            ).subquery()
+
+    count_avg = select(
+        func.avg(count_all_books.c.book_count).label('avg_books')
+    ).scalar_subquery()
+
+    result = await session.execute(
+        select(AuthorsOrm)
+        .options(selectinload(AuthorsOrm.authors_books))
+        .join(BooksOrm, BooksOrm.author_id == AuthorsOrm.id)
+        .group_by(AuthorsOrm.id)
+        .having(func.count(BooksOrm.id) > count_avg)
+    )
+
+    authors = result.scalars().all()
+    if len(authors) == 0:
+        raise NotFoundError(f'Авторы не найдены!')
+    return authors
+
