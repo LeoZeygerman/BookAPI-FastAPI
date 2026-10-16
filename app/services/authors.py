@@ -10,6 +10,7 @@ async def create_author(session: AsyncSession, author: CreateAuthor) -> AuthorsO
     new_author =  AuthorsOrm(
         author_name = author.author_name
         )
+    
     session.add(new_author)
     await session.commit()
     return new_author
@@ -42,15 +43,26 @@ async def update_author(session: AsyncSession, data: UpdateAuthor, author_name: 
         .where(AuthorsOrm.author_name == author_name)
         .options(AuthorsOrm.authors_books)
     )
-
     if author is None:
         raise NotFoundError(f'Автор не найден!')
     
     changes = data.model_dump(exclude_unset=True)
-
     for key, value in changes.items():
         setattr(author, key, value)
 
     await session.commit()
     await session.refresh(author)
     return author
+
+
+async def delete_author(session: AsyncSession, author_name: str):
+    author = await session.scalar(
+        select(AuthorsOrm)
+        .where(AuthorsOrm.author_name == author_name)
+    )
+    if author is None:
+        raise NotFoundError(f'Автор не найден!')
+
+    await session.delete(author)
+    await session.commit()
+    return {'msg': f'Автор {author_name} удален!'}
