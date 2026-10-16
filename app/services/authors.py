@@ -88,3 +88,22 @@ async def get_top_five_authors(session: AsyncSession):
     if len(authors) == 0:
         raise NotFoundError(f'Авторов нет!')
     return authors
+
+
+async def get_author_with_n_books(session: AsyncSession, book_count: int):
+    result = await session.execute(
+        select(
+            AuthorsOrm.author_name,
+            func.array_agg(BooksOrm.book_title).label('books_title'),
+            func.count(BooksOrm.id).label('book_count')
+        )
+        .group_by(AuthorsOrm.id)
+        .join(BooksOrm, BooksOrm.author_id == AuthorsOrm.id)
+        .having(func.count(BooksOrm.id) == book_count)
+    )
+
+    authors = result.mappings().all()
+    if len(authors) == 0:
+        raise NotFoundError(f'Авторы с таким количеством книг не найдены!')
+
+    return authors
