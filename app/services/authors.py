@@ -1,5 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.exception import NotFoundError
 from app.models.authors import AuthorsOrm
 from app.schemas.authors import CreateAuthor
 from sqlalchemy.orm import selectinload
@@ -20,4 +21,16 @@ async def get_author_by_name(session: AsyncSession, author_name: str):
         .where(AuthorsOrm.author_name == author_name)
         .options(selectinload(AuthorsOrm.authors_books))
     )
+    if author is None:
+        raise NotFoundError(f'Автор не найден!')
     return author
+
+
+async def get_all_authors(session: AsyncSession):
+    authors = await session.scalars(
+        select(AuthorsOrm)
+        .options(AuthorsOrm.authors_books)
+    )
+    if len(authors) == 0:
+        raise NotFoundError(f'Авторов нет!')
+    return authors
