@@ -29,10 +29,12 @@ async def get_author_by_name(session: AsyncSession, author_name: str):
 
 
 async def get_all_authors(session: AsyncSession):
-    authors = await session.scalars(
+    result = await session.scalars(
         select(AuthorsOrm)
-        .options(AuthorsOrm.authors_books)
+        .options(selectinload(AuthorsOrm.authors_books))
     )
+    
+    authors = result.all()
     if len(authors) == 0:
         raise NotFoundError(f'Авторов нет!')
     return authors
@@ -42,7 +44,7 @@ async def update_author(session: AsyncSession, data: UpdateAuthor, author_name: 
     author = await session.scalar(
         select(AuthorsOrm)
         .where(AuthorsOrm.author_name == author_name)
-        .options(AuthorsOrm.authors_books)
+        .options(selectinload(AuthorsOrm.authors_books))
     )
     if author is None:
         raise NotFoundError(f'Автор не найден!')

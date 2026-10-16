@@ -32,5 +32,5 @@ class ResponseAuthor(BaseModel):
     
 
 class UpdateAuthor(BaseModel):
-    author_name: str | None
-    authors_book: list[str] | None
+    author_name: str | None = None
+    authors_books: list[str] | None = None
