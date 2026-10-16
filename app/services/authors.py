@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.exception import NotFoundError
 from app.models.authors import AuthorsOrm
-from app.schemas.authors import CreateAuthor
+from app.schemas.authors import CreateAuthor, UpdateAuthor
 from sqlalchemy.orm import selectinload
 
 
@@ -34,3 +34,23 @@ async def get_all_authors(session: AsyncSession):
     if len(authors) == 0:
         raise NotFoundError(f'Авторов нет!')
     return authors
+
+
+async def update_author(session: AsyncSession, data: UpdateAuthor, author_name: str):
+    author = await session.scalar(
+        select(AuthorsOrm)
+        .where(AuthorsOrm.author_name == author_name)
+        .options(AuthorsOrm.authors_books)
+    )
+
+    if author is None:
+        raise NotFoundError(f'Автор не найден!')
+    
+    changes = data.model_dump(exclude_unset=True)
+
+    for key, value in changes.items():
+        setattr(author, key, value)
+
+    await session.commit()
+    await session.refresh(author)
+    return author
