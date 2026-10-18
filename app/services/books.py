@@ -1,10 +1,11 @@
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.exception import NotFoundError
+from app.models.authors import AuthorsOrm
 from app.models.books import BooksOrm
 from app.models.genres import GenresOrm
 from app.models.reviews import ReviewsOrm
-from app.schemas.books import CreateBook
+from app.schemas.books import CreateBook, UpdateBook
 from app.services.lookups import get_or_create_genre, get_or_create_author
 from sqlalchemy.orm import selectinload
 
@@ -107,3 +108,46 @@ async def get_most_reviewed_books(session: AsyncSession):
     )
     books = result.mappings().all()
     return books
+
+
+async def update_book(session: AsyncSession, data: UpdateBook, book_title: str):
+    book = await get_book_by_title(session, book_title)
+    changes = data.model_dump(exclude_unset=True)
+    await _apply_changes(session, book, changes)
+    await session.flush()
+    await session.commit()
+    return book
+
+
+async def _apply_genres(session: AsyncSession, book: BooksOrm, value: list[str]):
+    genres = []
+    for title in value:
+        genre = await get_or_create_genre(session, title)
+        genres.append(genre)
+    book.genres = genres
+
+
+async def _apply_author(session: AsyncSession, book: BooksOrm, author_name: str):
+    book.author = await get_or_create_author(session, author_name)
+
+
+def _apply_simple(field: str | int):
+    async def setter(session: AsyncSession, book: BooksOrm, value: str):
+        setattr(book, field, value)
+    return setter
+
+
+_FIELD_HANDLERS = {
+    'book_title': _apply_simple('book_title'),
+    'description': _apply_simple('description'),
+    'author': _apply_author,
+    'genre': _apply_genres
+}
+
+
+async def _apply_changes(session: AsyncSession, book: BooksOrm, changes: dict):
+    for field, value in changes.items():
+        handler = _FIELD_HANDLERS(field)
+        if handler is None:
+            raise NotFoundError(f'Параметр {field} не найден!')
+        await handler(session, book, value)

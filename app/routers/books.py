@@ -126,7 +126,7 @@ async def delete_book(session: SessionDep, book_title: str):
     return {'msg': f'Книга {book_title} удалена!'}
 
 
-@router.get('/genre/{genre_title}', summary='Поиск книг по жанру', response_model=ResponseGenre)
+@router.get('/genre/{genre_title}', summary='Поиск книг по жанру', response_model=list[ResponseGenre])
 async def get_book_by_genre(session: SessionDep, genre_title: str):
     genre_with_books = await session.scalar(
         select(GenresOrm)
