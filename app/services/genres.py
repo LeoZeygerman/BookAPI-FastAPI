@@ -65,4 +65,17 @@ async def update_genre(session: AsyncSession, data: UpdateGenre, genre_title: st
     return genre
 
 
+async def delete_genre(session: AsyncSession, genre_title: str):
+    genre = await session.scalar(
+        select(GenresOrm)
+        .where(GenresOrm.genre_title == genre_title)
+    )
+    if genre is None:
+        raise NotFoundError(f'Жанр {genre_title} не найден!')
+
+    await session.delete(genre)
+    await session.commit()
+    return {'msg': f'Жанр {genre_title} удален!'}
+
+
 
