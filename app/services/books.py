@@ -56,3 +56,26 @@ async def get_all_books(session: AsyncSession):
     if len(books) is None:
         raise NotFoundError(f'Книг нет!')
     return books 
+
+
+async def delete_book(session: AsyncSession, book_title: str):
+    book = await session.scalar(
+        select(BooksOrm)
+        .where(BooksOrm.book_title == book_title)
+        .options(
+            selectinload(BooksOrm.genres),
+            selectinload(BooksOrm.reviews),
+            selectinload(BooksOrm.author)
+        )
+    )
+
+    if book is None:
+        raise NotFoundError(f'Книга {book_title} не найдена!')
+
+    await session.delete(book)
+    await session.commit()
+    return {'msg': f'Книга {book_title} удалена!'}
+
+
+async def get_book_by_genre(session: AsyncSession, genre_title: str):
+    pass
