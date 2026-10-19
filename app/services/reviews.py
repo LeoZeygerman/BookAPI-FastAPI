@@ -52,3 +52,34 @@ async def get_all_reviews(session: AsyncSession):
     if len(reviews) == 0:
         raise NotFoundError(f'Обзоров нет!')
     return reviews
+
+
+async def _apply_reviewed_book(session: AsyncSession, review: ReviewsOrm, book_title: str):
+    book = await session.scalar(
+        select(BooksOrm)
+        .where(BooksOrm.book_title == book_title)
+    )
+    if book is None:
+        raise NotFoundError(f'Книга не найдена!')
+    review.reviewed_book = book
+
+
+def _apply_simple(field: str | int):
+    async def setter(session: AsyncSession, review: ReviewsOrm, value: str):
+        setattr(review, field, value)
+    return setter
+
+
+_FIELD_HANDLERS = {
+    'user_name': _apply_simple('user_name'),
+    'reviewed_book': _apply_reviewed_book,
+    'review': _apply_simple('review')
+}
+
+
+async def _apply_changes(session: AsyncSession, review: ReviewsOrm, changes: dict):
+    for field, value in changes.items():
+        handler = _FIELD_HANDLERS.get(field)
+        if handler is None:
+            raise NotFoundError(f'Параметр {field} не найден!')
+        await handler(session, review, value)
