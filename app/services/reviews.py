@@ -55,7 +55,15 @@ async def get_all_reviews(session: AsyncSession):
 
 
 async def update_review(session: AsyncSession, data: UpdateReview, user_name: str):
-    review = get_review_by_username(session, user_name)
+    review = await session.scalar(
+        select(ReviewsOrm)
+        .where(ReviewsOrm.user_name == user_name)
+        .options(
+            selectinload(ReviewsOrm.reviewed_book)
+        )
+    )
+    if review is None:
+        raise NotFoundError(f'Обзор {user_name} не найден!')
     changes = data.model_dump(exclude_unset=True)
     await _apply_changes(session, review, changes)
     await session.flush()

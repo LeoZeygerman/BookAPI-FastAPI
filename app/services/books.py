@@ -141,7 +141,7 @@ _FIELD_HANDLERS = {
     'book_title': _apply_simple('book_title'),
     'description': _apply_simple('description'),
     'author': _apply_author,
-    'genres': _apply_genres
+    'genre': _apply_genres
 }
 
 
