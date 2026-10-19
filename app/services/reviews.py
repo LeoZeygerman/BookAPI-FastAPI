@@ -4,7 +4,7 @@ from app.database import AsyncSession
 from app.exception import NotFoundError
 from app.models.books import BooksOrm
 from app.models.reviews import ReviewsOrm
-from app.schemas.reviews import CreateReview
+from app.schemas.reviews import CreateReview, UpdateReview
 
 
 async def create_review(session: AsyncSession, review: CreateReview):
@@ -52,6 +52,15 @@ async def get_all_reviews(session: AsyncSession):
     if len(reviews) == 0:
         raise NotFoundError(f'Обзоров нет!')
     return reviews
+
+
+async def update_review(session: AsyncSession, data: UpdateReview, user_name: str):
+    review = get_review_by_username(session, user_name)
+    changes = data.model_dump(exclude_unset=True)
+    await _apply_changes(session, review, changes)
+    await session.flush()
+    await session.commit()
+    return review
 
 
 async def _apply_reviewed_book(session: AsyncSession, review: ReviewsOrm, book_title: str):
