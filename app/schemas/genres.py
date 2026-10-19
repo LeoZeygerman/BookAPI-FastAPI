@@ -21,4 +21,4 @@ class ResponseGenre(BaseModel):
     
     
 class UpdateGenre(BaseModel):
-    genre_title: str | None
+    genre_title: str | None = None

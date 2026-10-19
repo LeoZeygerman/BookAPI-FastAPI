@@ -94,7 +94,7 @@ async def get_author_with_n_books(session: AsyncSession, book_count: int):
     result = await session.execute(
         select(
             AuthorsOrm.author_name,
-            func.array_agg(BooksOrm.book_title).label('books_title'),
+            func.array_agg(BooksOrm.book_title).label('book_title'),
             func.count(BooksOrm.id).label('book_count')
         )
         .group_by(AuthorsOrm.id)

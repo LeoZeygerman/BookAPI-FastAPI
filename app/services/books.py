@@ -11,10 +11,10 @@ from sqlalchemy.orm import selectinload
 
 
 async def create_book(session: AsyncSession, book: CreateBook):
-    author = get_or_create_author(session, book.author)
+    author = await get_or_create_author(session, book.author)
     genres = []
     for genre_title in book.genres:
-        genre = get_or_create_genre(session, genre_title)
+        genre = await get_or_create_genre(session, genre_title)
         genres.append(genre)
 
     new_book = BooksOrm(
@@ -56,7 +56,7 @@ async def get_all_books(session: AsyncSession):
     )
 
     books = result.all()
-    if len(books) is None:
+    if len(books) == 0:
         raise NotFoundError(f'Книг нет!')
     return books 
 
@@ -141,13 +141,13 @@ _FIELD_HANDLERS = {
     'book_title': _apply_simple('book_title'),
     'description': _apply_simple('description'),
     'author': _apply_author,
-    'genre': _apply_genres
+    'genres': _apply_genres
 }
 
 
 async def _apply_changes(session: AsyncSession, book: BooksOrm, changes: dict):
     for field, value in changes.items():
-        handler = _FIELD_HANDLERS(field)
+        handler = _FIELD_HANDLERS.get(field)
         if handler is None:
             raise NotFoundError(f'Параметр {field} не найден!')
         await handler(session, book, value)

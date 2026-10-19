@@ -13,6 +13,7 @@ async def get_or_create_author(session: AsyncSession, author_name: str):
         author = AuthorsOrm(
             author_name = author_name
         )
+        session.add(author)
     return author
 
 
@@ -25,4 +26,5 @@ async def get_or_create_genre(session: AsyncSession, genre_title: str):
         genre = GenresOrm(
             genre_title = genre_title
         )
+        session.add(genre)
     return genre

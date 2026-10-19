@@ -1,6 +1,6 @@
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from app.database import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.exception import NotFoundError
 from app.models.genres import GenresOrm
 from app.schemas.genres import CreateGenre, UpdateGenre
