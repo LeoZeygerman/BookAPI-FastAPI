@@ -6,7 +6,7 @@ from app.models.genres import GenresOrm
 from app.schemas.genres import CreateGenre, UpdateGenre
 
 
-async def create_genre(session: AsyncSession, genre: CreateGenre):
+async def create_genre(session: AsyncSession, genre: CreateGenre) -> GenresOrm:
     new_genre = GenresOrm(
         genre_title = genre.genre_title
     )
@@ -31,7 +31,7 @@ async def get_genre_by_title(session: AsyncSession, genre_title: str):
     return genre
 
 
-async def get_all_genres(session: AsyncSession):
+async def get_all_genres(session: AsyncSession) -> list[GenresOrm]:
     result = await session.scalars(
         select(GenresOrm)
         .options(
@@ -45,7 +45,7 @@ async def get_all_genres(session: AsyncSession):
     return genres
 
 
-async def update_genre(session: AsyncSession, data: UpdateGenre, genre_title: str):
+async def update_genre(session: AsyncSession, data: UpdateGenre, genre_title: str) -> GenresOrm:
     genre = await session.scalar(
         select(GenresOrm)
         .where(GenresOrm.genre_title == genre_title)
@@ -65,7 +65,7 @@ async def update_genre(session: AsyncSession, data: UpdateGenre, genre_title: st
     return genre
 
 
-async def delete_genre(session: AsyncSession, genre_title: str):
+async def delete_genre(session: AsyncSession, genre_title: str) -> dict:
     genre = await session.scalar(
         select(GenresOrm)
         .where(GenresOrm.genre_title == genre_title)

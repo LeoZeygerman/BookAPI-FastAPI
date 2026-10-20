@@ -7,7 +7,7 @@ from app.models.reviews import ReviewsOrm
 from app.schemas.reviews import CreateReview, UpdateReview
 
 
-async def create_review(session: AsyncSession, review: CreateReview):
+async def create_review(session: AsyncSession, review: CreateReview) -> ReviewsOrm:
     book = await session.scalar(
         select(BooksOrm)
         .where(BooksOrm.book_title == review.reviewed_book)
@@ -25,7 +25,7 @@ async def create_review(session: AsyncSession, review: CreateReview):
     return new_review
 
 
-async def get_review_by_username(session: AsyncSession, user_name: str):
+async def get_review_by_username(session: AsyncSession, user_name: str) -> ReviewsOrm:
     result = await session.scalars(
         select(ReviewsOrm)
         .where(ReviewsOrm.user_name == user_name)
@@ -40,7 +40,7 @@ async def get_review_by_username(session: AsyncSession, user_name: str):
     return reviews
 
 
-async def get_all_reviews(session: AsyncSession):
+async def get_all_reviews(session: AsyncSession) -> list[ReviewsOrm]:
     result = await session.scalars(
         select(ReviewsOrm)
         .options(
@@ -54,7 +54,7 @@ async def get_all_reviews(session: AsyncSession):
     return reviews
 
 
-async def update_review(session: AsyncSession, data: UpdateReview, user_name: str):
+async def update_review(session: AsyncSession, data: UpdateReview, user_name: str) -> ReviewsOrm:
     review = await session.scalar(
         select(ReviewsOrm)
         .where(ReviewsOrm.user_name == user_name)

@@ -17,7 +17,7 @@ async def create_author(session: AsyncSession, author: CreateAuthor) -> AuthorsO
     return await get_author_by_name(session, author.author_name)
 
 
-async def get_author_by_name(session: AsyncSession, author_name: str):
+async def get_author_by_name(session: AsyncSession, author_name: str) -> AuthorsOrm:
     author = await session.scalar(
         select(AuthorsOrm)
         .where(AuthorsOrm.author_name == author_name)
@@ -29,7 +29,7 @@ async def get_author_by_name(session: AsyncSession, author_name: str):
     return author
 
 
-async def get_all_authors(session: AsyncSession):
+async def get_all_authors(session: AsyncSession) -> list[AuthorsOrm]:
     result = await session.scalars(
         select(AuthorsOrm)
         .options(selectinload(AuthorsOrm.authors_books)
@@ -42,7 +42,7 @@ async def get_all_authors(session: AsyncSession):
     return authors
 
 
-async def update_author(session: AsyncSession, data: UpdateAuthor, author_name: str):
+async def update_author(session: AsyncSession, data: UpdateAuthor, author_name: str) -> AuthorsOrm:
     author = await session.scalar(
         select(AuthorsOrm)
         .where(AuthorsOrm.author_name == author_name)
@@ -61,7 +61,7 @@ async def update_author(session: AsyncSession, data: UpdateAuthor, author_name: 
     return author
 
 
-async def delete_author(session: AsyncSession, author_name: str):
+async def delete_author(session: AsyncSession, author_name: str) -> dict:
     author = await session.scalar(
         select(AuthorsOrm)
         .where(AuthorsOrm.author_name == author_name)
@@ -74,7 +74,7 @@ async def delete_author(session: AsyncSession, author_name: str):
     return {'msg': f'Автор {author_name} удален!'}
 
 
-async def get_top_five_authors(session: AsyncSession):
+async def get_top_five_authors(session: AsyncSession) -> list[AuthorsOrm]:
     result = await session.execute(
         select(
             AuthorsOrm.author_name,
@@ -93,7 +93,7 @@ async def get_top_five_authors(session: AsyncSession):
     return authors
 
 
-async def get_author_with_n_books(session: AsyncSession, book_count: int):
+async def get_author_with_n_books(session: AsyncSession, book_count: int) -> AuthorsOrm:
     result = await session.execute(
         select(
             AuthorsOrm.author_name,
@@ -108,11 +108,10 @@ async def get_author_with_n_books(session: AsyncSession, book_count: int):
     authors = result.mappings().all()
     if len(authors) == 0:
         raise NotFoundError(f'Авторы с таким количеством книг не найдены!')
-
     return authors
 
 
-async def get_authors_more_than_avg(session: AsyncSession):
+async def get_authors_more_than_avg(session: AsyncSession) -> list[AuthorsOrm]:
     count_all_books = select(
         AuthorsOrm.id,
         func.count(BooksOrm.id).label('book_count')

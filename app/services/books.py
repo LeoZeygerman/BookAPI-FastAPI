@@ -9,7 +9,7 @@ from app.services.lookups import get_or_create_genre, get_or_create_author
 from sqlalchemy.orm import selectinload
 
 
-async def get_book_by_title(session: AsyncSession, book_title: str):
+async def get_book_by_title(session: AsyncSession, book_title: str) -> BooksOrm:
     book = await session.scalar(
         select(BooksOrm)
         .where(BooksOrm.book_title == book_title)
@@ -25,7 +25,7 @@ async def get_book_by_title(session: AsyncSession, book_title: str):
     return book
 
 
-async def create_book(session: AsyncSession, book: CreateBook):
+async def create_book(session: AsyncSession, book: CreateBook) -> BooksOrm:
     author = await get_or_create_author(session, book.author)
     genres = []
     for genre_title in book.genres:
@@ -45,7 +45,7 @@ async def create_book(session: AsyncSession, book: CreateBook):
     return await get_book_by_title(session, book.book_title)
 
 
-async def get_all_books(session: AsyncSession):
+async def get_all_books(session: AsyncSession) -> list[BooksOrm]:
     result = await session.scalars(
         select(BooksOrm)
         .options(
@@ -61,7 +61,7 @@ async def get_all_books(session: AsyncSession):
     return books 
 
 
-async def delete_book(session: AsyncSession, book_title: str):
+async def delete_book(session: AsyncSession, book_title: str) -> dict:
     book = await session.scalar(
         select(BooksOrm)
         .where(BooksOrm.book_title == book_title)
@@ -80,7 +80,7 @@ async def delete_book(session: AsyncSession, book_title: str):
     return {'msg': f'Книга {book_title} удалена!'}
 
 
-async def get_book_by_genre(session: AsyncSession, genre_title: str):
+async def get_book_by_genre(session: AsyncSession, genre_title: str) -> list[BooksOrm]:
     genre_with_books = await session.scalars(
         select(GenresOrm)
         .where(GenresOrm.genre_title == genre_title)
@@ -95,7 +95,7 @@ async def get_book_by_genre(session: AsyncSession, genre_title: str):
     return books
 
 
-async def get_most_reviewed_books(session: AsyncSession):
+async def get_most_reviewed_books(session: AsyncSession) -> list[BooksOrm]:
     result = await session.execute(
         select(
             BooksOrm.id,
@@ -110,7 +110,7 @@ async def get_most_reviewed_books(session: AsyncSession):
     return books
 
 
-async def update_book(session: AsyncSession, data: UpdateBook, book_title: str):
+async def update_book(session: AsyncSession, data: UpdateBook, book_title: str) -> BooksOrm:
     book = await get_book_by_title(session, book_title)
     changes = data.model_dump(exclude_unset=True)
     await _apply_changes(session, book, changes)
