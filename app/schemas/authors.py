@@ -1,5 +1,4 @@
 from pydantic import BaseModel, ConfigDict
-from typing import TYPE_CHECKING
 from app.schemas.books import ResponseGenreForBook
 
 

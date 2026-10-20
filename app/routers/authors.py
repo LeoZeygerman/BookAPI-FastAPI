@@ -1,9 +1,5 @@
-from fastapi import APIRouter, HTTPException
-from sqlalchemy import func, select
-from sqlalchemy.orm import selectinload
+from fastapi import APIRouter
 from app.database import SessionDep
-from app.models.authors import AuthorsOrm
-from app.models.books import BooksOrm
 from app.schemas.authors import CreateAuthor, ResponseAuthor, ResponseAuthorForTops, UpdateAuthor
 from app.services.authors import *
 

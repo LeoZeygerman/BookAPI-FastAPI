@@ -1,9 +1,5 @@
-from fastapi import APIRouter, HTTPException
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from fastapi import APIRouter
 from app.database import SessionDep
-from app.models.books import BooksOrm
-from app.models.reviews import ReviewsOrm
 from app.schemas.reviews import CreateReview, ResponseReview, UpdateReview
 from app.services.reviews import *
 

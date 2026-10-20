@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+from app.exception import AppException
 from app.models.base import Base
 from app.routers.reviews import router as review_router
 from app.routers.genres import router as genre_router
@@ -15,6 +17,15 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+
+@app.exception_handler(AppException)
+async def exception_handler(request: Request, exc: AppException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={'detail': exc.detail}
+    )
+
 
 app.include_router(book_router)
 app.include_router(author_router)

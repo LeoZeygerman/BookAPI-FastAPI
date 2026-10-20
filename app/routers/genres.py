@@ -1,8 +1,5 @@
-from fastapi import APIRouter, HTTPException
-from sqlalchemy.orm import selectinload
-from sqlalchemy import select
+from fastapi import APIRouter
 from app.database import SessionDep
-from app.models.genres import GenresOrm
 from app.schemas.genres import CreateGenre, ResponseGenre, UpdateGenre
 from app.services.genres import *
 
