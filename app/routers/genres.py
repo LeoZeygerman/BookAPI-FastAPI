@@ -7,7 +7,7 @@ router = APIRouter(prefix='/genres', tags=['Жанры'])
 
 @router.post('/genres', summary='Создать жанр', response_model=ResponseGenre)
 async def create_genre_router(session: SessionDep, genre: CreateGenre):
-    new_genre = create_genre(session, genre)
+    new_genre = await create_genre(session, genre)
     return new_genre
 
 

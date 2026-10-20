@@ -9,6 +9,22 @@ from app.services.lookups import get_or_create_genre, get_or_create_author
 from sqlalchemy.orm import selectinload
 
 
+async def get_book_by_title(session: AsyncSession, book_title: str):
+    book = await session.scalar(
+        select(BooksOrm)
+        .where(BooksOrm.book_title == book_title)
+        .options(
+            selectinload(BooksOrm.genres),
+            selectinload(BooksOrm.reviews),
+            selectinload(BooksOrm.author)
+            )
+    )
+
+    if book is None:
+        raise NotFoundError(f'Книга не найдена!')
+    return book
+
+
 async def create_book(session: AsyncSession, book: CreateBook):
     author = await get_or_create_author(session, book.author)
     genres = []
@@ -24,24 +40,9 @@ async def create_book(session: AsyncSession, book: CreateBook):
     )
 
     session.add(new_book)
+    await session.flush()
     await session.commit()
-    return new_book
-
-
-async def get_book_by_title(session: AsyncSession, book_title: str):
-    book = await session.scalar(
-        select(BooksOrm)
-        .where(BooksOrm.book_title == book_title)
-        .options(
-            selectinload(BooksOrm.genres),
-            selectinload(BooksOrm.reviews),
-            selectinload(BooksOrm.author)
-            )
-    )
-
-    if book is None:
-        raise NotFoundError(f'Книга не найдена!')
-    return book
+    return await get_book_by_title(session, book.book_title)
 
 
 async def get_all_books(session: AsyncSession):

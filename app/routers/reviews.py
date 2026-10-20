@@ -25,7 +25,7 @@ async def get_all_reviews_router(session: SessionDep):
 
 
 @router.patch('/update-review/{review_id}', summary='Изменить обзор', response_model=ResponseReview)
-async def update_review(session: SessionDep, username: str, data: UpdateReview):
+async def update_review_router(session: SessionDep, username: str, data: UpdateReview):
     review = await update_review(session, data, username)
     return review
 

@@ -14,14 +14,15 @@ async def create_author(session: AsyncSession, author: CreateAuthor) -> AuthorsO
     
     session.add(new_author)
     await session.commit()
-    return new_author
+    return await get_author_by_name(session, author.author_name)
 
 
 async def get_author_by_name(session: AsyncSession, author_name: str):
     author = await session.scalar(
         select(AuthorsOrm)
         .where(AuthorsOrm.author_name == author_name)
-        .options(selectinload(AuthorsOrm.authors_books))
+        .options(selectinload(AuthorsOrm.authors_books)
+                 .selectinload(BooksOrm.genres))
     )
     if author is None:
         raise NotFoundError(f'Автор не найден!')
@@ -31,7 +32,8 @@ async def get_author_by_name(session: AsyncSession, author_name: str):
 async def get_all_authors(session: AsyncSession):
     result = await session.scalars(
         select(AuthorsOrm)
-        .options(selectinload(AuthorsOrm.authors_books))
+        .options(selectinload(AuthorsOrm.authors_books)
+                 .selectinload(BooksOrm.genres))
     )
     
     authors = result.all()
@@ -44,7 +46,8 @@ async def update_author(session: AsyncSession, data: UpdateAuthor, author_name: 
     author = await session.scalar(
         select(AuthorsOrm)
         .where(AuthorsOrm.author_name == author_name)
-        .options(selectinload(AuthorsOrm.authors_books))
+        .options(selectinload(AuthorsOrm.authors_books)
+                 .selectinload(BooksOrm.genres))
     )
     if author is None:
         raise NotFoundError(f'Автор не найден!')
@@ -125,7 +128,8 @@ async def get_authors_more_than_avg(session: AsyncSession):
 
     result = await session.execute(
         select(AuthorsOrm)
-        .options(selectinload(AuthorsOrm.authors_books))
+        .options(selectinload(AuthorsOrm.authors_books)
+                 .selectinload(BooksOrm.genres))
         .join(BooksOrm, BooksOrm.author_id == AuthorsOrm.id)
         .group_by(AuthorsOrm.id)
         .having(func.count(BooksOrm.id) > count_avg)

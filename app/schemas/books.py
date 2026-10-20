@@ -41,6 +41,6 @@ class ResponseBookForReviewCount(BaseModel):
 
 class UpdateBook(BaseModel):
     book_title: str | None = None
-    description: str | None = Field(min_length=10, max_length=150)
+    description: str | None = Field(default=None,min_length=10, max_length=150)
     author: str | None = None
     genre: list[str] | None = None

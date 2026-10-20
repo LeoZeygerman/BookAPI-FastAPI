@@ -19,7 +19,7 @@ class BooksOrm(Base):
 
     reviews: Mapped[list['ReviewsOrm']] = relationship(
         back_populates='reviewed_book'
-    )
+    ) 
 
     author: Mapped['AuthorsOrm'] = relationship(
         back_populates='authors_books'

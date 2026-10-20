@@ -25,7 +25,7 @@ class CreateAuthor(BaseModel):
 class ResponseAuthor(BaseModel):
     id: int
     author_name: str
-    authors_books: list[ResponseBookForAuthor]
+    authors_books: list[ResponseBookForAuthor] | None = None
     
     model_config = ConfigDict(from_attributes=True)
     

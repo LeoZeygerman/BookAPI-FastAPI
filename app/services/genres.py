@@ -14,7 +14,7 @@ async def create_genre(session: AsyncSession, genre: CreateGenre):
     session.add(new_genre)
     await session.flush()
     await session.commit()
-    return new_genre
+    return await get_genre_by_title(session, genre.genre_title)
 
 
 async def get_genre_by_title(session: AsyncSession, genre_title: str):
