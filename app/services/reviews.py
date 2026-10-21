@@ -22,7 +22,7 @@ async def create_review(session: AsyncSession, review: CreateReview) -> ReviewsO
     )
     session.add(new_review)
     await session.commit()
-    return new_review
+    return await get_review_by_username(session, review.user_name)
 
 
 async def get_review_by_username(session: AsyncSession, user_name: str) -> ReviewsOrm:

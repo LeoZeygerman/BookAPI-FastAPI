@@ -80,7 +80,7 @@ async def delete_book(session: AsyncSession, book_title: str) -> dict:
     return {'msg': f'Книга {book_title} удалена!'}
 
 
-async def get_book_by_genre(session: AsyncSession, genre_title: str) -> list[BooksOrm]:
+async def get_book_by_genre(session: AsyncSession, genre_title: str) -> list[GenresOrm]:
     genre_with_books = await session.scalars(
         select(GenresOrm)
         .where(GenresOrm.genre_title == genre_title)

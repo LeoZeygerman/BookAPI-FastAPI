@@ -49,5 +49,5 @@ async def get_author_with_n_books_router(session: SessionDep, book_count: int):
 
 @router.get('/avg', summary='Авторы с количеством книг больше среднего', response_model=list[ResponseAuthor])
 async def get_authors_more_than_avg_router(session: SessionDep):
-    authors = get_authors_more_than_avg(session)
+    authors = await get_authors_more_than_avg(session)
     return authors

@@ -4,7 +4,7 @@ from app.models.authors import AuthorsOrm
 from app.models.genres import GenresOrm
 
 
-async def get_or_create_author(session: AsyncSession, author_name: str) -> GenresOrm:
+async def get_or_create_author(session: AsyncSession, author_name: str) -> AuthorsOrm:
     author = await session.scalar(
         select(AuthorsOrm)
         .where(AuthorsOrm.author_name == author_name)
