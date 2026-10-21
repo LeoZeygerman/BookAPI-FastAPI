@@ -18,13 +18,13 @@ async def get_review_by_username_router(session: SessionDep, user_name: str):
     return review
 
 
-@router.get('/', summary='Получить все обзоры', response_model=list[ResponseReview])
+@router.get('/get-all', summary='Получить все обзоры', response_model=list[ResponseReview])
 async def get_all_reviews_router(session: SessionDep):
     reviews = await get_all_reviews(session)
     return reviews
 
 
-@router.patch('/update-review/{review_id}', summary='Изменить обзор', response_model=ResponseReview)
+@router.patch('/update-review/{username}', summary='Изменить обзор', response_model=ResponseReview)
 async def update_review_router(session: SessionDep, username: str, data: UpdateReview):
     review = await update_review(session, data, username)
     return review

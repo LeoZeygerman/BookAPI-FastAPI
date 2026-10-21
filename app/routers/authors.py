@@ -17,25 +17,25 @@ async def get_author_by_name_router(session: SessionDep, author_name: str):
     return author
 
 
-@router.get('/', summary='Получить всех авторов', response_model=list[ResponseAuthor])
+@router.get('/get-all', summary='Получить всех авторов', response_model=list[ResponseAuthor])
 async def get_all_authors_router(session: SessionDep):
     authors = await get_all_authors(session)
     return authors
 
 
-@router.patch('/{author_name}', summary='Изменить автора', response_model=ResponseAuthor)
+@router.patch('/update/{author_name}', summary='Изменить автора', response_model=ResponseAuthor)
 async def update_author_router(session: SessionDep, data: UpdateAuthor, author_name: str):
     author = await update_author(session, data, author_name)
     return author
     
 
-@router.delete('/{author_name}', summary='Удалить автора')
+@router.delete('/delete/{author_name}', summary='Удалить автора')
 async def delete_author_router(session: SessionDep, author_name: str):
     author = await delete_author(session, author_name)
     return author
 
 
-@router.get('/', summary='Топ 5 авторов по количеству книг.', response_model=list[ResponseAuthorForTops])
+@router.get('/top', summary='Топ 5 авторов по количеству книг.', response_model=list[ResponseAuthorForTops])
 async def get_top_five_authors_router(session: SessionDep):
     authors = await get_top_five_authors(session)
     return authors
@@ -47,7 +47,7 @@ async def get_author_with_n_books_router(session: SessionDep, book_count: int):
     return authors
 
 
-@router.get('/', summary='Авторы с количеством книг больше среднего', response_model=list[ResponseAuthor])
+@router.get('/avg', summary='Авторы с количеством книг больше среднего', response_model=list[ResponseAuthor])
 async def get_authors_more_than_avg_router(session: SessionDep):
     authors = get_authors_more_than_avg(session)
     return authors
