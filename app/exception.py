@@ -1,3 +1,4 @@
+
 class AppException(Exception):
     status_code = 500
     detail = 'Ошибка сервера'
