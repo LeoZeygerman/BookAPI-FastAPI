@@ -1,3 +1,5 @@
+from sqlalchemy import String
+
 from app.models.base import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
@@ -14,3 +16,8 @@ class AuthorsOrm(Base):
     authors_books: Mapped[list['BooksOrm']] = relationship(
         back_populates='author'
         )
+
+    test_for_alembic: Mapped[str | None] = mapped_column(
+        String(100),
+        nullable=True
+    )
